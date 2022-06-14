@@ -1,6 +1,6 @@
 //LINK API URL
 export const REACT_API='https://ptit-elearning.herokuapp.com'
-
+// export const REACT_API='http://localhost:8080'
 
 //REGEX
 export const regexPhone=new RegExp(/^\d{3,15}$/)

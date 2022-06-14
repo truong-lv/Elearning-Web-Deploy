@@ -44,14 +44,22 @@ export default function CreditClassPostDetail() {
   const [isOpenAddFolder, setIsOpenAddFolder] = useState(false);
   const [openDeleteFolderConfirm, setOpenDeleteFolderConfirm] = useState(false);
   const [folderFocus, setFolderFocus] = useState({})
+
+  const [loadding, setLoadding] = useState(false)
+  const [openToast, setOpenToast] = useState(false);
+  const [toastMess, setToastMess] = useState('');
+  const [toastType, setToastType] = useState(0);
+
   const handleDeleteFolder = useCallback((folder) => { setFolderFocus(folder); setOpenDeleteFolderConfirm(true); }, [folderFocus])
   const handleAddFileDone = useCallback(() => { handleAddFile() }, [listFolder])
   const handleDeleteFileDone = useCallback(() => { handleDeleteFile() }, [listFolder])
+  const handleShowToastErorr = useCallback((erorrMes) => { setToastType(1) ;
+                                                            setToastMess(erorrMes);
+                                                            setOpenToast(true)}, [toastType])
+  const handleLoadding = useCallback((isLoadding) => { setLoadding(isLoadding) }, [loadding])
+
   let newDocument = '';
 
-  const [openToast, setOpenToast] = useState(false);
-  const [toastMess, setToastMess] = useState('');
-  const [loadding, setLoadding] = useState(false)
 
   const loadDocuments = () => {
     setLoadding(true);
@@ -105,14 +113,16 @@ export default function CreditClassPostDetail() {
         if (response.status === 200 || response.status === 201) {
           handleCloseAddFolder();
           loadDocuments();
+          setToastType(0)
           setOpenToast(true);
           setToastMess("Thêm thư mục thành công")
         }
       })
       .catch(function (error) {
         console.log(error);
+        setToastType(1)
         setOpenToast(true);
-        setToastMess("Thêm thư mục thất bại")
+        setToastMess(error.response.data)
       });
   }
   const handleCloseAddFolder = () => {
@@ -134,14 +144,16 @@ export default function CreditClassPostDetail() {
         if (response.status === 200) {
           loadDocuments();
           handleCloseDeleteFolder();
+          setToastType(0)
           setOpenToast(true);
           setToastMess("Xóa thư mục thành công")
         }
       })
       .catch(function (error) {
         console.log(error);
+        setToastType(1)
         setOpenToast(true);
-        setToastMess("Xóa thư mục thất bại")
+        setToastMess(error.response.data)
       });
   };
   const handleCloseDeleteFolder = () => {
@@ -152,12 +164,14 @@ export default function CreditClassPostDetail() {
   //-------Add file----------
   const handleAddFile = () => {
     loadDocuments();
+    setToastType(0)
     setOpenToast(true);
     setToastMess("Thêm tài liệu thành công")
   }
   //-------Delete file----------
   const handleDeleteFile = () => {
     loadDocuments();
+    setToastType(0)
     setOpenToast(true);
     setToastMess("Xóa tài liệu thành công")
   }
@@ -187,7 +201,9 @@ export default function CreditClassPostDetail() {
               <Row key={folder.folderId} folder={folder}
                 handleDeleteFolder={handleDeleteFolder}
                 handleAddFileDone={handleAddFileDone}
-                handleDeleteFileDone={handleDeleteFileDone} />
+                handleDeleteFileDone={handleDeleteFileDone}
+                handleLoadding={handleLoadding} 
+                handleShowToastErorr={handleShowToastErorr}/>
             ))}
           </TableBody>
         </Table>
@@ -243,7 +259,7 @@ export default function CreditClassPostDetail() {
       </Dialog>
 
       {/* SHOW TOAST THÔNG BÁO KẾT QUẢ */}
-      <AppToast content={toastMess} type={0} isOpen={openToast} callback={() => {
+      <AppToast content={toastMess} type={toastType} isOpen={openToast} callback={() => {
         setOpenToast(false);
       }} />
       <Backdrop
@@ -260,11 +276,9 @@ export default function CreditClassPostDetail() {
 
 
 function Row(props) {
-  const { folder, handleDeleteFolder, handleAddFileDone, handleDeleteFileDone } = props;
+  const { folder, handleDeleteFolder, handleAddFileDone, handleDeleteFileDone,handleLoadding,handleShowToastErorr } = props;
   const [open, setOpen] = useState(false);
-  const [seletedFile, setSelectedFile] = useState();
   const inputFile = useRef(null)
-  const [isOpenAddFile, setIsOpenAddFile] = useState(false);
   const [openDeleteFileConfirm, setOpenDeleteFileConfirm] = useState(false);
   const [fileFocus, setFileFocus] = useState({})
   // ==================Handle File===================
@@ -279,11 +293,17 @@ function Row(props) {
   }
 
   const handleConfirmAddFile = (file) => {
+    if(file.size>(12*1024*1024)){
+      handleShowToastErorr("File vượt quá kích thước 12MB")
+      return;
+    }
+    
+    handleLoadding(true);
+
     const token = localStorage.getItem('accessToken')
     const FormData = require('form-data');
     const formData = new FormData();
     formData.append('file', file);
-    console.log(file)
     var config = {
       method: 'post',
       url: axios.defaults.baseURL + '/api/admin/document/upload?folder-id=' + folder.folderId,
@@ -293,19 +313,18 @@ function Row(props) {
       },
       data: formData
     };
+    
     axios(config)
       .then(function (response) {
         if (response.status === 200 || response.status === 201) {
-          handleCloseAddFile();
           handleAddFileDone();
+          handleLoadding(false)
         }
       })
       .catch(function (error) {
-        console.log(error);
+        console.log({error});
+        handleLoadding(false)
       });
-  }
-  const handleCloseAddFile = () => {
-    setIsOpenAddFile(false)
   }
 
   //----handle delete File-----------------
@@ -315,6 +334,8 @@ function Row(props) {
   }
 
   const handleConfirmDeleteFile = () => {
+    handleCloseDeleteFile();
+    handleLoadding(true)
     const token = localStorage.getItem('accessToken')
     var config = {
       method: 'delete',
@@ -326,12 +347,14 @@ function Row(props) {
     axios(config)
       .then(function (response) {
         if (response.status === 200) {
-          handleCloseDeleteFile();
+          
           handleDeleteFileDone();
+          handleLoadding(false);
         }
       })
       .catch(function (error) {
         console.log(error);
+        handleLoadding(false);
 
       });
   };
@@ -440,7 +463,6 @@ function Row(props) {
         </TableCell>
       </TableRow>
       <input type='file' id='file' ref={inputFile} 
-            accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             style={{ display: 'none' }} 
             onChange={(event) => onChangeFile(event)} />
       {/* DIALOG CONFIRM DELETE File */}
