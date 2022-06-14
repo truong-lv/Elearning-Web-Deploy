@@ -27,6 +27,7 @@
     "redux-persist": "^6.0.0",
     "s-date": "^1.6.4",
     "sass": "^1.49.9",
+    "serve": "^13.0.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
