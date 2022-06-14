@@ -439,7 +439,10 @@ function Row(props) {
           </Collapse>
         </TableCell>
       </TableRow>
-      <input type='file' id='file' ref={inputFile} style={{ display: 'none' }} onChange={(event) => onChangeFile(event)} />
+      <input type='file' id='file' ref={inputFile} 
+            accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            style={{ display: 'none' }} 
+            onChange={(event) => onChangeFile(event)} />
       {/* DIALOG CONFIRM DELETE File */}
       <Dialog
         open={openDeleteFileConfirm}

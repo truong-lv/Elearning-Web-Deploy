@@ -381,7 +381,10 @@ function Infor() {
                     </Container>
                 </Box>
             </Container>
-            <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={(event)=>onChangeFile(event)}/>
+            <input type='file' id='file' ref={inputFile} 
+                accept="image/png, image/jpeg"
+                style={{display: 'none'}} 
+                onChange={(event)=>onChangeFile(event)}/>
         </Fragment>
     )
 }
