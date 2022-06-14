@@ -1,4 +1,4 @@
-import {Fragment, useState} from 'react';
+import {Fragment, useState,useEffect} from 'react';
 import { styled} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
@@ -12,6 +12,7 @@ import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import HomeWorkOutlinedIcon from '@mui/icons-material/HomeWorkOutlined';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import AdminItems from './AdminItems';
@@ -20,9 +21,9 @@ import Avatar from '@mui/material/Avatar';
 import {useNavigate} from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setInfor, setLogin } from '../../actions/action';
-import {stringAvatar} from '../../myTool/handleAvatar';
+import AppAvatar from '../../myTool/handleAvatar';
 import { useSelector} from 'react-redux'
-
+import axios from 'axios';
 
 export function Copyright(props) {
   return (
@@ -88,9 +89,26 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 function AdminFrame() {
   const navigate = useNavigate();
   const dispatch = useDispatch()
+  const [userInfo, setUserInfo] = useState({})
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(true);
   const username=useSelector(state => state.infor.username||'')
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+        axios.get('/api/user/get-user-info', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }).then((response) => {
+            setUserInfo({ ...response.data })
+            //console.log(response.data)
+
+        }).catch(error => {
+
+            console.log(error)
+        })
+  }, [])
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -109,6 +127,9 @@ function AdminFrame() {
   };
   const handleGoInfor = () => {
     navigate("/infor");
+  };
+  const handleGoHome = () => {
+    navigate("/home");
   };
   const isMenuOpen = Boolean(anchorEl);
   const menuId = 'primary-search-account-menu';
@@ -129,6 +150,7 @@ function AdminFrame() {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleGoInfor}><AccountCircle/> Profile</MenuItem>
+      <MenuItem onClick={handleGoHome}><HomeWorkOutlinedIcon/> HomePage</MenuItem>
       <MenuItem onClick={handleLogout}><LogoutIcon/> Logout</MenuItem>
     </Menu>
   );
@@ -172,7 +194,7 @@ function AdminFrame() {
                 onClick={handleProfileMenuOpen}
                 color="inherit"
               >
-                <Avatar {...stringAvatar(username)} sizes='15'/>
+                <AppAvatar url={userInfo.avatar}/>
               </IconButton>
           </Toolbar>
         </AppBar>

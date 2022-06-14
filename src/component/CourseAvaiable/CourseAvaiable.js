@@ -21,17 +21,21 @@ import { useState } from 'react'
 
 import './style.css'
 import courseIcon from "../../assets/image/course-icon.png"
+import star from "../../assets/image/star.png"
+import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 
 import { useSelector } from 'react-redux'
 
 
-function Course({ course, fullWidth }) {
+function Course({ course, fullWidth, displayStar }) {
 
     const userRoles = useSelector(state => state.infor.roles || [])
-    const isTeacherModer = userRoles.some(role => role === 'ROLE_TEACHER' || role === 'ROLE_MODERATOR')
+    const isModer = userRoles.some(role => role === 'ROLE_MODERATOR')
+    const isTeacher = userRoles.some(role => role === 'ROLE_TEACHER')
 
     let navigate = useNavigate();
     const [open, setOpen] = useState(false);
+    const [openTeacherDialog, setOpenTeacherDialog] = useState(false);
     const [isError, setIsError] = useState(false);
     const [inviteCode, setInviteCode] = useState('');
     const [contentError, setContentError] = useState('');
@@ -39,6 +43,10 @@ function Course({ course, fullWidth }) {
 
     const handleClose = () => {
         setOpen(false);
+    };
+
+    const handleCloseTeacherDialog = () => {
+        setOpenTeacherDialog(false);
     };
 
     const handleFillInviteCode = (e) => {
@@ -77,25 +85,36 @@ function Course({ course, fullWidth }) {
     }
 
     const handleCourseItem = (creditClassId) => {
-        if(isTeacherModer) navigate(`/CourseDetail/credit_class_id=${creditClassId}`);
-        const token = localStorage.getItem('accessToken')
-        var config = {
-            method: 'post',
-            url: axios.defaults.baseURL + `/api/user/check-joined?creditclass-id=${creditClassId}`,
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-        };
+        if(isModer) navigate(`/CourseDetail/credit_class_id=${creditClassId}`);
+        if(isTeacher && displayStar === false) {
+            setOpenTeacherDialog(true);
+        }
+        else if(isTeacher)
+        {
+            navigate(`/CourseDetail/credit_class_id=${creditClassId}`);
+        }
+        else
+        {
 
-        axios(config)
-            .then(function (response) {
-                if (response.status === 200) {
-                    navigate(`/CourseDetail/credit_class_id=${creditClassId}`)
-                }
-            })
-            .catch(function (error) {
-                setOpen(true);
-            });
+            const token = localStorage.getItem('accessToken')
+            var config = {
+                method: 'post',
+                url: axios.defaults.baseURL + `/api/user/check-joined?creditclass-id=${creditClassId}`,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            };
+    
+            axios(config)
+                .then(function (response) {
+                    if (response.status === 200) {
+                        navigate(`/CourseDetail/credit_class_id=${creditClassId}`)
+                    }
+                })
+                .catch(function (error) {
+                    setOpen(true);
+                });
+        }
 
     }
 
@@ -103,6 +122,9 @@ function Course({ course, fullWidth }) {
         <Grid item={true} xs={4} md={fullWidth === false ? 3 : 2.4}  >
             <Card className="course-box" title={course.subjectName} onClick={() => handleCourseItem(course.creditClassId)}>
                 <CardActionArea>
+                    <div className="course-star-img" style={{display: displayStar ? "inherit" : "none"}}>
+                        <StarOutlinedIcon color="warning"/>
+                    </div>
                     <div className="course-img" ><img src={courseIcon} alt="courseIcon" /></div>
                     <CardContent style={{ display: 'flex', flexDirection: 'column' }}>
                         <Typography variant="body1" component="div" align="center" noWrap>
@@ -140,6 +162,15 @@ function Course({ course, fullWidth }) {
                     <Button onClick={() => handleJoinClass(course.creditClassId)}>Đồng ý</Button>
                 </DialogActions>
             </Dialog>
+            <Dialog open={openTeacherDialog} onClose={handleCloseTeacherDialog}>
+                <DialogTitle>Thông báo</DialogTitle>
+                <DialogContent>
+                    Bạn không dạy lớp này nên không thể vào!!
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseTeacherDialog}>Đồng ý</Button>
+                </DialogActions>
+            </Dialog>
             <AppToast content={contentError} type={1} isOpen={openToastError} callback={() => {
                 setOpenToastError(false);
             }} />
@@ -147,15 +178,18 @@ function Course({ course, fullWidth }) {
     )
 }
 
-export default function CouresAvaiable({ courses, fullWidth }) {
+export default function CouresAvaiable({ courses, courseJoined, fullWidth }) {
     return (
         <React.Fragment>
             <Typography gutterBottom variant="h6" component="div" color="#2980B9">
                 {/* KHÓA HỌC HIỆN CÓ */}
             </Typography>
+            {console.log(courses)}
+            {console.log(courseJoined)}
             <Grid container columnSpacing={2} rowSpacing={2}>
                 {courses.map((course) => {
-                    return <Course key={course.creditClassId} course={course} fullWidth={fullWidth} />
+                    return <Course key={course.creditClassId} course={course} fullWidth={fullWidth} 
+                    displayStar={courseJoined === undefined ? false :courseJoined.some((c) => c.creditClassId === course.creditClassId)}/>
                 })}
             </Grid>
         </React.Fragment>

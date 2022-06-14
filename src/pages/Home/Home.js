@@ -5,9 +5,11 @@ import CourseAvaiable from "../../component/CourseAvaiable/CourseAvaiable";
 
 
 import axios from "axios";
+import {TEACHER, USER} from '../../config'
 
 import { Fragment } from "react";
 import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -24,6 +26,8 @@ function Home() {
     const [listNewPost, setListNewPost] = useState([])
     const [date, setDate] = useState(new Date());
     const [unseenNoti, setUnseenNoti] = useState(0)
+    const userRoles = useSelector(state => state.infor.roles || [])
+    const [courseRegistered, setCourseRegistered]=useState([])
 
     useEffect(() => {
         const token = localStorage.getItem('accessToken')
@@ -58,6 +62,23 @@ function Home() {
         })
     }, [])
 
+    useEffect(() => {
+        // setLoading(true)
+        let url='/api/user/registration';
+        if(userRoles.some(role => role === TEACHER)){
+          url='/api/teacher/timetable-semester'
+        }
+    
+        const token=localStorage.getItem('accessToken')
+        axios.get(url,{
+            headers: {
+                'Authorization':`Bearer ${token}`
+            }
+        }).then((response) => {
+            setCourseRegistered(response.data)
+        }).catch(error => console.log(error))
+      },[]) 
+
     return (
         <Fragment>
             <Navbar />
@@ -70,7 +91,8 @@ function Home() {
                                     <Typography gutterBottom variant="h6" component="div" color="#2980B9">
                                         KHÓA HỌC HIỆN CÓ
                                     </Typography>
-                                    <CourseAvaiable courses={listTopCourse} fullWidth={false} />
+                                    {/* <CourseAvaiable courses={listTopCourse} fullWidth={false} /> */}
+                                    <CourseAvaiable courses={listTopCourse} courseJoined={courseRegistered} fullWidth={false} />
                                 </div>
                             </Grid>
                             <Grid item={true}>

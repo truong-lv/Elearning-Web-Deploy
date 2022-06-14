@@ -2,6 +2,7 @@ import Navbar from "../../component/Navbar/Nabar"
 import CourseAvaiable from "../../component/CourseAvaiable/CourseAvaiable";
 
 import * as React from 'react';
+import { useSelector } from 'react-redux'
 import { useState, useEffect, Fragment } from 'react'
 
 import Box from '@mui/material/Box'
@@ -16,8 +17,8 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 import axios from "axios"
-
 import style from "./style.module.scss"
+import {TEACHER, USER} from '../../config'
 
 function Course() {
 
@@ -32,6 +33,8 @@ function Course() {
     const [isSetSemester, setIsSetSemester] = useState(false);
 
     const [departmentSelect, setDepartmentSelect] = useState([]);
+    const [courseRegistered, setCourseRegistered]=useState([])
+    const userRoles = useSelector(state => state.infor.roles || [])
 
     function ComboBoxSchoolYear() {
 
@@ -134,6 +137,23 @@ function Course() {
         }).catch(error => console.log(error))
     }, [])
 
+    useEffect(() => {
+        // setLoading(true)
+        let url='/api/user/registration';
+        if(userRoles.some(role => role === TEACHER)){
+          url='/api/teacher/timetable-semester'
+        }
+    
+        const token=localStorage.getItem('accessToken')
+        axios.get(url,{
+            headers: {
+                'Authorization':`Bearer ${token}`
+            }
+        }).then((response) => {
+            setCourseRegistered(response.data)
+        }).catch(error => console.log(error))
+      },[]) 
+
 
     const loadAnotherCourse = () => {
         const token = localStorage.getItem('accessToken');
@@ -160,7 +180,7 @@ function Course() {
                                 <Typography gutterBottom variant="h6" component="div" color="#2980B9">
                                     CÁC KHÓA HỌC HIỆN TẠI
                                     <Container style={{ border: '1px solid #000', padding: '20px 30px', marginTop: '20px' }}>
-                                        <CourseAvaiable courses={listCurrentCourses} fullWidth={true} />
+                                        <CourseAvaiable courses={listCurrentCourses} courseJoined={courseRegistered}  fullWidth={true} />
                                     </Container>
                                 </Typography>
                             </Grid>

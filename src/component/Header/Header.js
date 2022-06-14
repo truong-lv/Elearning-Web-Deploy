@@ -22,6 +22,7 @@ import './HeaderStyle.css';
 import { useDispatch } from 'react-redux';
 import { setInfor, setLogin } from '../../actions/action';
 import AppAvatar from '../../myTool/handleAvatar';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 import Banner from './banner'
 
@@ -81,6 +82,9 @@ export default function Header() {
   const handleGoInfor = () => {
     navigate("/infor");
   };
+  const handleGoAdmin = () => {
+    navigate("/admin");
+  };
 
   const handleGoNotifi = () => {
     navigate("/notification")
@@ -120,6 +124,8 @@ export default function Header() {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleGoInfor}><AccountCircle /> Profile</MenuItem>
+      {userRoles.some(role => role === "ROLE_MODERATOR") && <MenuItem onClick={handleGoAdmin}><AdminPanelSettingsIcon /> Admin page</MenuItem>}
+      
       <MenuItem onClick={handleLogout}><LogoutIcon /> Logout</MenuItem>
     </Menu>
   );
@@ -166,6 +172,19 @@ export default function Header() {
         </IconButton>
         <p>Profile</p>
       </MenuItem>
+      {userRoles.some(role => role === "ROLE_MODERATOR") && 
+      <MenuItem onClick={handleGoAdmin}>
+        <IconButton
+          size="large"
+          aria-label="account of current user"
+          aria-controls="primary-search-account-menu"
+          aria-haspopup="true"
+          color="inherit"
+        >
+          <AdminPanelSettingsIcon />
+        </IconButton>
+        <p>Admin Page</p>
+      </MenuItem>}
       <MenuItem onClick={handleLogout}>
         <IconButton
           size="large"

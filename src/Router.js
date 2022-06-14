@@ -51,7 +51,7 @@ function CheckAdmin() {
     const userRole = useSelector(state => state.infor.roles)
     const isAdmin = userRole.some((role) => (role === MODERATOR))
     return (
-        isAdmin ? <Outlet /> : (isLogin ? <Outlet /> : <Navigate to='/login' />)
+        isAdmin ? <Outlet /> : (isLogin ? <Navigate to='/home' /> : <Navigate to='/login' />)
     );
 }
 
