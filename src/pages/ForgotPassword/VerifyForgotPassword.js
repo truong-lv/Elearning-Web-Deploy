@@ -52,7 +52,7 @@ function VerifyForgotPassword() {
             .catch(function (error) {
                 if(error.response.status===400 || error.response.status===404){
                     setValid('block')
-                    // setErorrMess(error.response.data)
+                    setErorrMess(error.response.data)
                     setLoading(false);
 
                 }
