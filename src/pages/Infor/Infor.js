@@ -92,7 +92,7 @@ function Infor() {
           axios(config)
             .then(function (response) {
               if(response.status===200 || response.status===201){
-                loadUserInfo();
+                window.location.reload();
               }
             })
             .catch(function (error) {
