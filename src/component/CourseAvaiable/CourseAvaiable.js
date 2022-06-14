@@ -22,9 +22,13 @@ import { useState } from 'react'
 import './style.css'
 import courseIcon from "../../assets/image/course-icon.png"
 
+import { useSelector } from 'react-redux'
+
 
 function Course({ course, fullWidth }) {
 
+    const userRoles = useSelector(state => state.infor.roles || [])
+    const isTeacherModer = userRoles.some(role => role === 'ROLE_TEACHER' || role === 'ROLE_MODERATOR')
 
     let navigate = useNavigate();
     const [open, setOpen] = useState(false);
@@ -49,7 +53,6 @@ function Course({ course, fullWidth }) {
     }
 
     const handleJoinClass = (creditClassId) => {
-
         const token = localStorage.getItem('accessToken');
         var config = {
             method: 'post',
@@ -74,6 +77,7 @@ function Course({ course, fullWidth }) {
     }
 
     const handleCourseItem = (creditClassId) => {
+        if(isTeacherModer) navigate(`/CourseDetail/credit_class_id=${creditClassId}`);
         const token = localStorage.getItem('accessToken')
         var config = {
             method: 'post',
