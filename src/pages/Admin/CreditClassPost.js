@@ -109,20 +109,6 @@ function CreditClassPost(){
 
     return (
         <Fragment>
-      <div style={{display:'flex',margin:'10px 0', justifyContent:'flex-end'}}>
-      <Search >
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </Search>
-          {/* <Button color="success" variant="contained" onClick={handleClickOpen} endIcon={<AddIcon />}>
-            Thêm
-          </Button> */}
-          </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 700 }} aria-label="customized table">
         <TableHead>
