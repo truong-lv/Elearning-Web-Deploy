@@ -100,7 +100,7 @@ function Notification(){
     const token=localStorage.getItem('accessToken')
     var config = {
       method: 'put',
-      url: 'http://localhost:8080/api/notification/seen/?notification-id='+idNotifi,
+      url: axios.defaults.baseURL + '/api/notification/seen/?notification-id='+idNotifi,
       headers: { 
         'Authorization': `Bearer ${token}`
       }
@@ -109,7 +109,7 @@ function Notification(){
     axios(config)
     .then(function (response) {
       setDetailContent(response.data)
-      setRefresh(!refresh)
+      window.location.reload();
     })
     .catch(function (error) {
       console.log(error);

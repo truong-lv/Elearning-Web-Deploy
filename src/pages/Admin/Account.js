@@ -148,6 +148,7 @@ function checkValidInput(){
   if(roleSelecteds.length===0){erorrStr.push('Quyền không được để trống');checkErorr=true}
   if(setUserId===0){erorrStr.push('Thông tin người dùng không được để trống');checkErorr=true}
   if(username===''){erorrStr.push('Tên tài khoản không được để trống');checkErorr=true}
+  if(username.length<3){erorrStr.push('Tên tài khoản tối thiểu 3 ký tự');checkErorr=true}
   if(password===''){erorrStr.push('Mật khẩu không được để trống');checkErorr=true}
   else if(password.length<6) {erorrStr.push('Mật khẩu tối thiểu 6 kí tự');checkErorr=true}
   setErorrMess(erorrStr.join(', '));
