@@ -82,7 +82,7 @@ function Notification(){
     .then(function (response) {
       setMessApi({mess:response.data,type:0})
       setOpenToast(true)
-      window.location.reload();
+      setRefresh(!refresh)
     })
     .catch(function (error) {
       setMessApi({mess:error.response.data,type:1})
@@ -109,7 +109,7 @@ function Notification(){
     axios(config)
     .then(function (response) {
       setDetailContent(response.data)
-      window.location.reload();
+      setRefresh(!refresh)
     })
     .catch(function (error) {
       console.log(error);
