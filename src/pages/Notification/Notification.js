@@ -72,7 +72,7 @@ function Notification(){
     const token=localStorage.getItem('accessToken')
     var config = {
       method: 'delete',
-      url: 'http://localhost:8080/api/notification/?notification-id='+idNotifi,
+      url: axios.defaults.baseURL + '/api/notification/?notification-id='+idNotifi,
       headers: { 
         'Authorization': `Bearer ${token}`
       }
@@ -82,7 +82,7 @@ function Notification(){
     .then(function (response) {
       setMessApi({mess:response.data,type:0})
       setOpenToast(true)
-      setRefresh(!refresh)
+      window.location.reload();
     })
     .catch(function (error) {
       setMessApi({mess:error.response.data,type:1})
